@@ -1,6 +1,6 @@
 " Script Name: cmdline-complete.vim
-" Version:     1.1.3
-" Last Change: July 18, 2008
+" Version:     1.1.3.p1
+" Last Change: 2016-09-16
 " Author:      Yuheng Xie <xie_yuheng@yahoo.com.cn>
 "
 " Description: complete command-line (: / etc.) from the current file
@@ -61,7 +61,7 @@ endfunction
 function! s:GenerateCompletionsPython(seed, backward)
 	let success = 0
 
-python << EOF
+python3 << EOF
 try:
 	import sys, re, vim
 
@@ -80,8 +80,8 @@ try:
 		return "[" + range_text + "]"
 
 	# simulate vim's \k
-	k = chars2range(map(lambda x: int(x), vim.eval( \
-			"filter(range(256), 'nr2char(v:val) =~ \"\\\\k\"')")))
+	k = chars2range([int(x) for x in vim.eval( \
+			"filter(range(256), 'nr2char(v:val) =~ \"\\\\k\"')")])
 
 	regexp = re.compile(r'(?<!' + k + r')' + re.escape(seed) + k + r'+')
 	if not seed:
@@ -92,7 +92,7 @@ try:
 
 	buffer = vim.current.buffer
 	completions_set = vim.eval("s:completions_set")
-	search_cursor = map(lambda x: int(x), vim.eval("s:search_cursor"))
+	search_cursor = [int(x) for x in vim.eval("s:search_cursor")]
 	sought_bw = int(vim.eval("s:sought_bw"))
 	sought_fw = int(vim.eval("s:sought_fw"))
 
@@ -307,7 +307,7 @@ function! s:CmdlineComplete(backward)
 			\  a:backward && s:comp_i == 0 ||
 			\ !a:backward && s:comp_i == len(s:completions) - 1)
 		let success = 0
-		if has('python')
+		if has('python3')
 			let success = s:GenerateCompletionsPython(s:seed, a:backward)
 		endif
 		if !success
